@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Politi MDT</title>
+  <style>
+    :root {
+      --bg: #07192d;
+      --panel: #102847;
+      --panel-soft: #122d50;
+      --line: rgba(101, 145, 219, 0.24);
+      --line-strong: #2a70ff;
+      --text: #f1f7ff;
+      --muted: #708db8;
+      --muted-soft: #4d6a93;
+      --blue: #2e74f6;
+      --blue-hover: #4284ff;
+      --green: #15d46f;
+      --yellow: #f8c338;
+      --red: #ff6071;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: Arial, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, rgba(8, 26, 46, 0.88), rgba(6, 18, 31, 0.96)), linear-gradient(135deg, #102a49 0%, #081a2d 58%, #071522 100%);
+    }
+    .hidden { display: none !important; }
+    .screen { min-height: 100vh; }
+    .auth-screen {
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .auth-card, .panel-box {
+      background: var(--panel);
+      border: 1px solid var(--line);
+    }
+    .auth-card {
+      width: min(100%, 460px);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .auth-header {
+      text-align: center;
+      padding: 32px 24px 24px;
+    }
+    .badge {
+      width: 34px;
+      height: 42px;
+      margin: 0 auto 16px;
+      border-radius: 10px 10px 14px 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, #ffd86d, #dca532);
+      color: #082243;
+      font-weight: 700;
+    }
+    .auth-header h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .auth-sub { margin-top: 10px; color: var(--muted); text-transform: uppercase; font-size: 12px; letter-spacing: 3px; }
+    .divider { height: 3px; background: linear-gradient(90deg, #2268ff, #2c82ff); }
+    .auth-form, .register-form, .editor-form, .stack-form { padding: 24px; }
+    .field, .field-row { display: grid; gap: 8px; }
+    .field-row { grid-template-columns: 1fr 1fr; }
+    .field span, .panel-title {
+      color: var(--muted-soft);
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    input, select, textarea, button {
+      font: inherit;
+    }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid rgba(151, 182, 255, 0.18);
+      background: #09182b;
+      color: var(--text);
+      border-radius: 6px;
+      padding: 14px;
+      outline: none;
+    }
+    textarea { min-height: 120px; resize: vertical; }
+    .btn, .ghost-btn, .mini-btn, .danger-btn, .icon-btn, .status-select, .profile-pill {
+      border-radius: 6px;
+      border: 1px solid rgba(108, 145, 215, 0.22);
+      cursor: pointer;
+    }
+    .btn, .ghost-btn {
+      min-height: 46px;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+    .btn, .mini-btn {
+      background: var(--blue);
+      color: #fff;
+      border-color: transparent;
+    }
+    .ghost-btn, .icon-btn {
+      background: transparent;
+      color: #c8d7f0;
+    }
+    .danger-btn {
+      background: rgba(72, 27, 38, 0.95);
+      color: #ff9da7;
+    }
+    .auth-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 24px;
+      border-top: 1px solid rgba(108, 145, 215, 0.14);
+    }
+    .app { min-height: 100vh; }
+    .topbar {
+      height: 56px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 0 14px;
+      border-bottom: 1px solid #1a4ea6;
+      background: var(--panel);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .topnav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+    }
+    .nav-item {
+      height: 36px;
+      padding: 0 12px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .nav-item.active { background: var(--blue); color: #fff; }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .clock-box, .status-select, .profile-pill, .mini-btn, .danger-btn, .icon-btn {
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 12px;
+      background: rgba(9, 24, 43, 0.88);
+      color: #d9e5f9;
+    }
+    .clock-box { min-width: 92px; }
+    .status-select { min-width: 150px; }
+    .profile-pill {
+      width: 36px;
+      border: 0;
+      background: linear-gradient(180deg, #3a71d0, #204b99);
+      color: #fff;
+    }
+    .app-content { padding-top: 12px; }
+    .view { display: none; }
+    .view.active { display: block; }
+    .stats-grid, .content-grid, .field-row, .detail-grid {
+      display: grid;
+      gap: 12px;
+    }
+    .stats-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      padding: 0 12px;
+      margin-bottom: 14px;
+    }
+    .stat-card {
+      min-height: 76px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .stat-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 30px;
+    }
+    .content-grid {
+      grid-template-columns: minmax(0, 1fr) 360px;
+      padding: 0 12px 12px;
+    }
+    .panel-box { min-height: 120px; }
+    .panel-title, .panel-headline {
+      padding: 16px 14px;
+      border-bottom: 1px solid rgba(108, 145, 215, 0.14);
+    }
+    .panel-headline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .panel-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .split-layout {
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      min-height: calc(100vh - 68px);
+    }
+    .sidebar-box { border-right: 1px solid var(--line); }
+    .unit-list, .call-list, .record-list { display: grid; }
+    .unit-item, .call-item, .record-item {
+      margin: 10px 12px 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #0f2440;
+    }
+    .record-item { cursor: pointer; border-left: 3px solid transparent; }
+    .record-item.active { border-left-color: var(--line-strong); background: #153055; }
+    .unit-top, .record-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .unit-name, .record-title { font-weight: 700; font-size: 22px; }
+    .unit-meta, .record-meta, .record-copy { color: var(--muted); }
+    .record-copy { margin-top: 8px; line-height: 1.45; }
+    .status-tag, .fleet-status, .inline-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border: 1px solid rgba(46, 116, 246, 0.34);
+      color: #88b7ff;
+    }
+    .status-tag.yellow { border-color: rgba(248, 195, 56, 0.38); color: var(--yellow); }
+    .status-tag.red { border-color: rgba(255, 96, 113, 0.32); color: #ff9da7; }
+    .status-tag.green { border-color: rgba(21, 212, 111, 0.34); color: var(--green); }
+    .detail-card, .detail-box-card, .detail-note {
+      border: 1px solid var(--line);
+      background: var(--panel-soft);
+      border-radius: 8px;
+    }
+    .detail-card { padding: 18px 16px 22px; }
+    .detail-card h2 { margin: 0 0 12px; font-size: 30px; }
+    .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 16px; }
+    .detail-box-card { padding: 14px; }
+    .detail-box-card span {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted-soft);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .detail-note { padding: 14px; line-height: 1.55; margin-bottom: 14px; }
+    .detail-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .verify-banner {
+      margin: 18px 24px 0;
+      padding: 14px 16px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      border-bottom: 1px solid rgba(108, 145, 215, 0.14);
+    }
+    .verify-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: var(--blue);
+      font-weight: 700;
+    }
+    @media (max-width: 1100px) {
+      .topbar { grid-template-columns: 1fr; height: auto; padding: 10px 12px; }
+      .stats-grid, .content-grid, .split-layout, .field-row, .detail-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <section class="screen auth-screen" id="loginScreen">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="badge">DK</div>
+        <h1>Politi MDT</h1>
+        <div class="auth-sub">Mobil Data Terminal</div>
+      </div>
+      <div class="divider"></div>
+      <form class="auth-form" id="loginForm">
+        <label class="field">
+          <span>Brugernavn (email)</span>
+          <input type="email" id="loginEmail" placeholder="betjent@politi.dk" required>
+        </label>
+        <label class="field">
+          <span>Adgangskode</span>
+          <input type="password" id="loginPassword" placeholder="********" required>
+        </label>
+        <button class="btn" type="submit">Log ind</button>
+      </form>
+      <div class="auth-footer">
+        <p>Ingen konto endnu?</p>
+        <button class="ghost-btn" type="button" id="openRegisterButton">Registrer</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen auth-screen hidden" id="registerScreen">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="badge">DK</div>
+        <h1>Opret konto</h1>
+        <div class="auth-sub">Dansk Politi MDT</div>
+      </div>
+      <div class="divider"></div>
+      <div class="verify-banner">
+        <div class="verify-icon">+</div>
+        <div>
+          <strong>Ikke verificeret</strong>
+          <div style="color:#f8c338;margin-top:4px;">Skal verificeres med Discord</div>
+        </div>
+      </div>
+      <form class="register-form" id="registerForm">
+        <div class="field-row">
+          <label class="field">
+            <span>Email</span>
+            <input type="email" id="registerEmail" placeholder="betjent@politi.dk" required>
+          </label>
+          <label class="field">
+            <span>Adgangskode</span>
+            <input type="password" id="registerPassword" placeholder="********" required>
+          </label>
+        </div>
+        <div class="field-row">
+          <label class="field">
+            <span>Fornavn</span>
+            <input type="text" id="firstName" placeholder="Fornavn" required>
+          </label>
+          <label class="field">
+            <span>Efternavn</span>
+            <input type="text" id="lastName" placeholder="Efternavn" required>
+          </label>
+        </div>
+        <div class="field-row">
+          <label class="field">
+            <span>P-nummer</span>
+            <input type="text" id="badgeNumber" placeholder="P11-37" required>
+          </label>
+          <label class="field">
+            <span>Afdeling</span>
+            <select id="departmentSelect">
+              <option value="" selected disabled>Vaelg afdeling</option>
+              <option>Patrulje</option>
+              <option>Efterforskning</option>
+              <option>Ledelse</option>
+            </select>
+          </label>
+        </div>
+        <div class="field-row">
+          <button class="ghost-btn" type="button" data-rank="Betjent">Betjent</button>
+          <button class="ghost-btn" type="button" data-rank="Overbetjent">Overbetjent</button>
+        </div>
+        <div class="field-row">
+          <button class="ghost-btn" type="button" data-rank="Kriminalbetjent">Kriminalbetjent</button>
+          <button class="ghost-btn" type="button" data-rank="Kommissaer">Kommissaer</button>
+        </div>
+        <div class="field-row">
+          <button class="btn" type="button" id="verifyButton">Verificer med Discord</button>
+          <button class="ghost-btn" type="button" id="backToLoginButton">Tilbage</button>
+        </div>
+        <button class="btn" type="submit">Opret konto</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="screen app hidden" id="mdtApp">
+    <header class="topbar">
+      <div class="brand"><div class="badge" style="margin:0;width:24px;height:30px;font-size:12px;">DK</div><span>Politi MDT</span></div>
+      <nav class="topnav">
+        <button class="nav-item active" type="button" data-view="dashboard">Dashboard</button>
+        <button class="nav-item" type="button" data-view="flaadestyring">Flaadestyring</button>
+        <button class="nav-item" type="button" data-view="opslag">Opslag</button>
+        <button class="nav-item" type="button" data-view="boeder">Boeder</button>
+        <button class="nav-item" type="button" data-view="anholdelser">Anholdelser</button>
+        <button class="nav-item" type="button" data-view="rapporter">Rapporter</button>
+        <button class="nav-item" type="button" data-view="retssager">Retssager</button>
+      </nav>
+      <div class="topbar-right">
+        <div class="clock-box" id="clockBox">11.29.12</div>
+        <select class="status-select" id="dutyStatusSelect">
+          <option value="On Duty">On Duty</option>
+          <option value="Pause">Pause</option>
+          <option value="Out of Service">Out of Service</option>
+          <option value="Offline">Offline</option>
+        </select>
+        <button class="profile-pill" type="button" id="logoutButton">KB</button>
+      </div>
+    </header>
+
+    <main class="app-content">
+      <section class="view active" id="view-dashboard">
+        <div class="stats-grid">
+          <article class="stat-card"><strong>17</strong><span>Aktive enheder</span></article>
+          <article class="stat-card"><strong style="color:var(--green);">0</strong><span>Tilgaengelig</span></article>
+          <article class="stat-card"><strong style="color:var(--yellow);">2</strong><span>Optaget</span></article>
+          <article class="stat-card"><strong>0</strong><span>Eftersaettelse</span></article>
+        </div>
+        <div class="content-grid">
+          <section class="panel-box">
+            <div class="panel-title">Aktive enheder</div>
+            <div class="unit-list" id="unitList"></div>
+          </section>
+          <section class="panel-box">
+            <div class="panel-title">Seneste noedopkald</div>
+            <div class="call-list" id="callList"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="view-flaadestyring">
+        <div class="split-layout">
+          <section class="panel-box sidebar-box">
+            <div class="panel-headline">
+              <div class="panel-title">Flaadestyring</div>
+              <div class="panel-actions">
+                <button class="icon-btn" type="button" id="refreshFleetButton">R</button>
+                <button class="mini-btn" type="button" id="newFleetButton">+ Ny</button>
+              </div>
+            </div>
+            <div class="record-list" id="fleetList"></div>
+          </section>
+          <section class="panel-box" id="fleetDetailBox">
+            <div class="panel-title">Enhedsdetaljer</div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="view-opslag"><div class="split-layout"><section class="panel-box sidebar-box"><div class="panel-title">Opslag</div><form class="stack-form" id="searchForm"><input id="searchInput" class="search-input" placeholder="Indtast CPR-nummer..."><button class="btn" type="submit">Soeg</button></form></section><section class="panel-box" id="searchResultBox"><div class="panel-title">Personopslag</div></section></div></section>
+      <section class="view" id="view-boeder"><div class="split-layout"><section class="panel-box sidebar-box"><div class="panel-headline"><div class="panel-title">Boeder</div><div class="panel-actions"><button class="mini-btn" type="button" id="newBoedeButton">+ Ny</button></div></div><div class="record-list" id="fineList"></div></section><section class="panel-box" id="fineDetailBox"><div class="panel-title">Boededetaljer</div></section></div></section>
+      <section class="view" id="view-anholdelser"><div class="split-layout"><section class="panel-box sidebar-box"><div class="panel-headline"><div class="panel-title">Anholdelser</div><div class="panel-actions"><button class="danger-btn" type="button" id="newArrestButton">+ Ny</button></div></div><div class="record-list" id="arrestList"></div></section><section class="panel-box" id="arrestDetailBox"><div class="panel-title">Anholdelsesdetaljer</div></section></div></section>
+      <section class="view" id="view-rapporter"><div class="split-layout"><section class="panel-box sidebar-box"><div class="panel-headline"><div class="panel-title">Rapporter</div><div class="panel-actions"><button class="mini-btn" type="button" id="newReportButton">+ Ny</button></div></div><div class="record-list" id="reportList"></div></section><section class="panel-box" id="reportDetailBox"><div class="panel-title">Rapportdetaljer</div></section></div></section>
+      <section class="view" id="view-retssager"><div class="split-layout"><section class="panel-box sidebar-box"><div class="panel-title">Retssager</div><div class="record-list" id="caseList"></div></section><section class="panel-box" id="caseDetailBox"><div class="panel-title">Sagsdetaljer</div></section></div></section>
+    </main>
+  </section>
+
+  <script>
+    const STORAGE_KEY = "politi-mdt-state";
+    const loginScreen = document.getElementById("loginScreen");
+    const registerScreen = document.getElementById("registerScreen");
+    const mdtApp = document.getElementById("mdtApp");
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
+    const openRegisterButton = document.getElementById("openRegisterButton");
+    const backToLoginButton = document.getElementById("backToLoginButton");
+    const verifyButton = document.getElementById("verifyButton");
+    const logoutButton = document.getElementById("logoutButton");
+    const dutyStatusSelect = document.getElementById("dutyStatusSelect");
+    const firstNameInput = document.getElementById("firstName");
+    const lastNameInput = document.getElementById("lastName");
+    const unitList = document.getElementById("unitList");
+    const callList = document.getElementById("callList");
+    const fleetList = document.getElementById("fleetList");
+    const fleetDetailBox = document.getElementById("fleetDetailBox");
+    const searchForm = document.getElementById("searchForm");
+    const searchInput = document.getElementById("searchInput");
+    const searchResultBox = document.getElementById("searchResultBox");
+    const fineList = document.getElementById("fineList");
+    const fineDetailBox = document.getElementById("fineDetailBox");
+    const arrestList = document.getElementById("arrestList");
+    const arrestDetailBox = document.getElementById("arrestDetailBox");
+    const reportList = document.getElementById("reportList");
+    const reportDetailBox = document.getElementById("reportDetailBox");
+    const caseList = document.getElementById("caseList");
+    const caseDetailBox = document.getElementById("caseDetailBox");
+    const navItems = Array.from(document.querySelectorAll(".nav-item"));
+    const views = Array.from(document.querySelectorAll(".view"));
+    const rankButtons = Array.from(document.querySelectorAll("[data-rank]"));
+
+    const state = {
+      selectedRank: "",
+      currentScreen: "login",
+      currentView: "dashboard",
+      dutyStatus: "Out of Service"
+    };
+
+    const data = {
+      units: [
+        { name: "Torben Mortensen", role: "Betjent", department: "Patrulje", code: "P11-31", status: "Optaget" },
+        { name: "Poul Erik Hansen", role: "Kommissaer", department: "Patrulje", code: "P11-14", status: "Optaget" },
+        { name: "Jakob Jensen", role: "Betjent", department: "Ledelse", code: "P11-06", status: "Tilgaengelig" }
+      ],
+      calls: [
+        { title: "Vold ved havnen", detail: "2 patruljer sendt til Havnegade 14", time: "11.31" },
+        { title: "Mistaenkelig bil", detail: "Sort Sultan observeret ved tunnelindkoersel", time: "11.27" }
+      ],
+      fleet: [
+        { id: "F-001", rpName: "Kristian Kronborg", unitType: "Bravo", callsign: "Bravo-2", vehicle: "Vapid Scout", partner: "", notes: "Jeg mangler en makker at koere med", status: "Out of Service" }
+      ],
+      fines: [],
+      arrests: [],
+      reports: [],
+      cases: []
+    };
+
+    function saveState() {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function loadState() {
+      try {
+        const stored = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || "{}");
+        Object.assign(state, stored);
+      } catch {}
+    }
+
+    function pad(number) {
+      return String(number).padStart(2, "0");
+    }
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById("clockBox").textContent = `${pad(now.getHours())}.${pad(now.getMinutes())}.${pad(now.getSeconds())}`;
+    }
+
+    function showScreen(screen) {
+      state.currentScreen = screen;
+      loginScreen.classList.toggle("hidden", screen !== "login");
+      registerScreen.classList.toggle("hidden", screen !== "register");
+      mdtApp.classList.toggle("hidden", screen !== "app");
+      saveState();
+    }
+
+    function showView(view) {
+      state.currentView = view;
+      navItems.forEach((item) => item.classList.toggle("active", item.dataset.view === view));
+      views.forEach((item) => item.classList.toggle("active", item.id === `view-${view}`));
+      saveState();
+    }
+
+    function syncRankButtons() {
+      rankButtons.forEach((button) => {
+        button.style.borderColor = button.dataset.rank === state.selectedRank ? "#3b7bff" : "rgba(108,145,215,0.22)";
+      });
+    }
+
+    function syncDutyStatus() {
+      dutyStatusSelect.value = state.dutyStatus;
+    }
+
+    function getRpName() {
+      return `${firstNameInput.value.trim()} ${lastNameInput.value.trim()}`.trim();
+    }
+
+    function renderUnits() {
+      unitList.innerHTML = data.units.map((unit) => `
+        <article class="unit-item">
+          <div class="unit-top">
+            <div>
+              <div class="unit-name">${unit.name}</div>
+              <div class="unit-meta">${unit.role} - ${unit.department}</div>
+            </div>
+            <div>
+              <div>${unit.code}</div>
+              <div class="status-tag yellow">${unit.status}</div>
+            </div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function renderCalls() {
+      callList.innerHTML = data.calls.map((call) => `
+        <article class="call-item">
+          <strong>${call.title}</strong>
+          <div class="record-copy">${call.detail}</div>
+          <div class="inline-badge" style="margin-top:10px;">${call.time}</div>
+        </article>
+      `).join("");
+    }
+
+    function renderFleetDetail(entry = null) {
+      const detail = entry || {
+        id: "",
+        rpName: getRpName(),
+        unitType: "",
+        callsign: "",
+        vehicle: "",
+        partner: "",
+        notes: "",
+        status: state.dutyStatus
+      };
+
+      fleetDetailBox.innerHTML = `
+        <div class="panel-title">Enhedsdetaljer</div>
+        <form class="editor-form" id="fleetForm">
+          <div class="detail-grid">
+            <label class="field">
+              <span>RP-navn</span>
+              <input type="text" name="rpName" value="${detail.rpName}" placeholder="Dit RP-navn" required>
+            </label>
+            <label class="field">
+              <span>Enhedstype</span>
+              <input type="text" name="unitType" value="${detail.unitType}" placeholder="Bravo, MC, Civil, AKS, Romeo" required>
+            </label>
+            <label class="field">
+              <span>Kaldesignal</span>
+              <input type="text" name="callsign" value="${detail.callsign}" placeholder="Bravo-1">
+            </label>
+            <label class="field">
+              <span>Koeretoej</span>
+              <input type="text" name="vehicle" value="${detail.vehicle}" placeholder="Buffalo STX, MC, Civil bil">
+            </label>
+            <label class="field">
+              <span>Makker</span>
+              <input type="text" name="partner" value="${detail.partner}" placeholder="Navn paa makker">
+            </label>
+            <label class="field">
+              <span>Status</span>
+              <select name="status">
+                <option ${detail.status === "On Duty" ? "selected" : ""}>On Duty</option>
+                <option ${detail.status === "Pause" ? "selected" : ""}>Pause</option>
+                <option ${detail.status === "Out of Service" ? "selected" : ""}>Out of Service</option>
+                <option ${detail.status === "Offline" ? "selected" : ""}>Offline</option>
+              </select>
+            </label>
+          </div>
+          <label class="field">
+            <span>Noter</span>
+            <textarea name="notes" placeholder="Skriv noter her. Fx: jeg mangler en makker at koere med">${detail.notes}</textarea>
+          </label>
+          <div class="detail-actions">
+            <button class="mini-btn" type="submit">Gem enhed</button>
+          </div>
+        </form>
+      `;
+
+      const form = document.getElementById("fleetForm");
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const formData = new FormData(form);
+        const fleetEntry = {
+          id: entry?.id || `F-${Date.now()}`,
+          rpName: formData.get("rpName").trim(),
+          unitType: formData.get("unitType").trim(),
+          callsign: formData.get("callsign").trim(),
+          vehicle: formData.get("vehicle").trim(),
+          partner: formData.get("partner").trim(),
+          notes: formData.get("notes").trim(),
+          status: formData.get("status").trim()
+        };
+
+        const existingIndex = data.fleet.findIndex((item) => item.id === fleetEntry.id);
+        if (existingIndex >= 0) {
+          data.fleet[existingIndex] = fleetEntry;
+        } else {
+          data.fleet.unshift(fleetEntry);
+        }
+        renderFleet(fleetEntry.id);
+      });
+    }
+
+    function renderFleet(activeId = null) {
+      fleetList.innerHTML = data.fleet.map((item) => `
+        <article class="record-item ${item.id === activeId ? "active" : ""}" data-fleet-id="${item.id}">
+          <div class="record-row">
+            <div>
+              <div class="record-title">${item.rpName || "Ukendt enhed"}</div>
+              <div class="record-meta">${item.unitType || "-"} - ${item.callsign || "-"}</div>
+              <div class="record-copy">${item.vehicle || "Intet koeretoej valgt"}</div>
+            </div>
+            <div><div class="fleet-status">${item.status || "Ingen status"}</div></div>
+          </div>
+        </article>
+      `).join("");
+
+      const active = data.fleet.find((item) => item.id === activeId) || null;
+      renderFleetDetail(active);
+      Array.from(fleetList.querySelectorAll("[data-fleet-id]")).forEach((item) => {
+        item.addEventListener("click", () => renderFleet(item.dataset.fleetId));
+      });
+    }
+
+    function renderSearchResult(query = "") {
+      const hasQuery = Boolean(query.trim());
+      searchResultBox.innerHTML = `
+        <div class="panel-title">Personopslag</div>
+        <div class="detail-card">
+          <h2>${hasQuery ? "Kristian Kronborg" : "Nyt opslag"}</h2>
+          <div class="detail-grid">
+            <div class="detail-box-card"><span>CPR</span><strong>${hasQuery ? query.trim() : "-"}</strong></div>
+            <div class="detail-box-card"><span>Alder</span><strong>${hasQuery ? "24 aar" : "-"}</strong></div>
+            <div class="detail-box-card"><span>Status</span><strong>${hasQuery ? "Ingen aktive kendelser" : "-"}</strong></div>
+            <div class="detail-box-card"><span>Koerekort</span><strong>${hasQuery ? "Gyldigt" : "-"}</strong></div>
+          </div>
+          <div class="detail-note">${hasQuery ? "Person fundet og klar til opslag." : "Skriv et CPR-nummer og tryk soeg."}</div>
+        </div>
+      `;
+    }
+
+    function renderPlaceholder(box, title, submitLabel) {
+      box.innerHTML = `
+        <div class="panel-title">${title}</div>
+        <form class="editor-form">
+          <div class="detail-grid">
+            <label class="field"><span>Navn</span><input type="text"></label>
+            <label class="field"><span>Alder</span><input type="text"></label>
+            <label class="field"><span>Sigtelse</span><input type="text"></label>
+            <label class="field"><span>Dato</span><input type="text"></label>
+          </div>
+          <label class="field"><span>Noter</span><textarea></textarea></label>
+          <div class="detail-actions"><button class="mini-btn" type="submit">${submitLabel}</button></div>
+        </form>
+      `;
+      box.querySelector("form").addEventListener("submit", (event) => event.preventDefault());
+    }
+
+    function updateFleetStatusFromTopbar() {
+      if (!data.fleet.length) return;
+      data.fleet[0].status = state.dutyStatus;
+      renderFleet(data.fleet[0].id);
+    }
+
+    openRegisterButton.addEventListener("click", () => showScreen("register"));
+    backToLoginButton.addEventListener("click", () => showScreen("login"));
+    verifyButton.addEventListener("click", () => { verifyButton.textContent = "Discord verificeret"; });
+    loginForm.addEventListener("submit", (event) => { event.preventDefault(); showScreen("app"); showView(state.currentView || "dashboard"); });
+    registerForm.addEventListener("submit", (event) => { event.preventDefault(); showScreen("app"); showView(state.currentView || "dashboard"); });
+    logoutButton.addEventListener("click", () => showScreen("login"));
+    dutyStatusSelect.addEventListener("change", () => {
+      state.dutyStatus = dutyStatusSelect.value;
+      saveState();
+      updateFleetStatusFromTopbar();
+    });
+    navItems.forEach((item) => item.addEventListener("click", () => showView(item.dataset.view)));
+    rankButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        state.selectedRank = state.selectedRank === button.dataset.rank ? "" : button.dataset.rank;
+        syncRankButtons();
+        saveState();
+      });
+    });
+    searchForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      renderSearchResult(searchInput.value);
+      showView("opslag");
+    });
+    document.getElementById("newFleetButton").addEventListener("click", () => renderFleet(null));
+    document.getElementById("newBoedeButton").addEventListener("click", () => renderPlaceholder(fineDetailBox, "Boedeformular", "Gem boede"));
+    document.getElementById("newArrestButton").addEventListener("click", () => renderPlaceholder(arrestDetailBox, "Anholdelsesformular", "Gem anholdelse"));
+    document.getElementById("newReportButton").addEventListener("click", () => renderPlaceholder(reportDetailBox, "Rapportdetaljer", "Gem rapport"));
+
+    loadState();
+    syncRankButtons();
+    syncDutyStatus();
+    renderUnits();
+    renderCalls();
+    renderFleet(data.fleet[0]?.id || null);
+    renderSearchResult("");
+    renderPlaceholder(fineDetailBox, "Boedeformular", "Gem boede");
+    renderPlaceholder(arrestDetailBox, "Anholdelsesformular", "Gem anholdelse");
+    renderPlaceholder(reportDetailBox, "Rapportdetaljer", "Gem rapport");
+    renderPlaceholder(caseDetailBox, "Sagsdetaljer", "Gem sag");
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    if (state.currentScreen === "app") {
+      showScreen("app");
+      showView(state.currentView || "dashboard");
+    } else if (state.currentScreen === "register") {
+      showScreen("register");
+    } else {
+      showScreen("login");
+    }
+  </script>
+</body>
+</html>
